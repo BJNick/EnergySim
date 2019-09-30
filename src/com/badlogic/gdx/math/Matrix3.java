@@ -22,7 +22,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 
 /** A 3x3 <a href="http://en.wikipedia.org/wiki/Row-major_order#Column-major_order">column major</a> matrix; useful for 2D
  * transforms.
- * 
+ *
  * @author mzechner */
 public class Matrix3 implements Serializable {
 	private static final long serialVersionUID = 7907569533774959788L;
@@ -71,7 +71,7 @@ public class Matrix3 implements Serializable {
 	}
 
 	/** Postmultiplies this matrix with the provided matrix and stores the result in this matrix. For example:
-	 * 
+	 *
 	 * <pre>
 	 * A.mul(B) results in A := AB
 	 * </pre>
@@ -106,7 +106,7 @@ public class Matrix3 implements Serializable {
 	}
 
 	/** Premultiplies this matrix with the provided matrix and stores the result in this matrix. For example:
-	 * 
+	 *
 	 * <pre>
 	 * A.mulLeft(B) results in A := BA
 	 * </pre>
@@ -233,7 +233,7 @@ public class Matrix3 implements Serializable {
 	}
 
 	/** Sets this matrix to a scaling matrix.
-	 * 
+	 *
 	 * @param scaleX the scale in x
 	 * @param scaleY the scale in y
 	 * @return This matrix for the purpose of chaining operations. */

@@ -3,18 +3,32 @@ package me.bjnick.energysim;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.io.File;
+import java.io.IOException;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.PriorityQueue;
 
 public class DrawPanel extends JPanel {
 
-    public Rectangle viewport;
-    public final float aspectRatio = 3/2f;
+    Rectangle viewport;
+    final float aspectRatio = 3/2f;
+
+    private PriorityQueue<Drawable> drawListeners;
+
+    private Dictionary<String, BufferedImage> bufferedImages;
 
     public DrawPanel() {
         super();
         viewport = new Rectangle(0, 0, 16 * aspectRatio, 16);
         viewport.setCenter(0, 0);
+        drawListeners = new PriorityQueue<>((d1, d2) -> d2.getLayer()-d1.getLayer());
+        bufferedImages = new Hashtable<>();
     }
 
     @Override
@@ -22,20 +36,26 @@ public class DrawPanel extends JPanel {
 
         int height = g.getClipBounds().height;
         int width = Math.round(aspectRatio * height);
-
-        g.setColor(new Color(0x153657));
+        g.setColor(new Color(0x0F2840));
         g.fillRect(0, 0, width, height);
 
-        g.setColor(new Color(0x53A969));
-        drawRectangle(g, new Rectangle(-12, -8, 2, 2), true);
-        g.setColor(new Color(0xA94C3F));
-        drawRectangle(g, new Rectangle(-12, -6, 2, 2), true);
-        g.setColor(new Color(0xA97D21));
-        drawRectangle(g, new Rectangle(8, 6, 2, 2), true);
+        for (Drawable d : drawListeners) {
+            d.draw(this, g);
+        }
 
     }
 
+    void addListener(Drawable drawable) {
+
+        drawListeners.add(drawable);
+    }
+
+    void removeListener(Drawable drawable) {
+        drawListeners.remove(drawable);
+    }
+
     Vector2 transformPosition(Vector2 position) {
+        position = position.scl(1, -1);
         var localPos = position.sub(viewport.getPosition(new Vector2()));
         localPos = localPos.scl(1/viewport.width, 1/viewport.height);
         return localPos;
@@ -44,6 +64,8 @@ public class DrawPanel extends JPanel {
     Rectangle transformRectangle(Rectangle rectangle) {
         Rectangle ret = new Rectangle(rectangle);
         ret.setSize(ret.width / viewport.width, ret.height / viewport.height);
+        if (ret.width == 0 || ret.height == 0)
+            System.out.println("WARNING: Width or height of the rectangle is zero.");
         ret.setPosition(transformPosition(ret.getPosition(new Vector2())));
         return ret;
     }
@@ -68,6 +90,63 @@ public class DrawPanel extends JPanel {
         else
             g.drawRect(intX(g, localPos), intY(g, localPos), intX(g, localSize), intY(g, localSize));
     }
+
+    void drawOval(Graphics g, Rectangle rectangle, boolean fill) {
+
+        Rectangle localRect = transformRectangle(rectangle);
+
+        Vector2 localPos = localRect.getPosition(new Vector2());
+        Vector2 localSize = localRect.getSize(new Vector2());
+
+        if (fill)
+            g.fillOval(intX(g, localPos), intY(g, localPos), intX(g, localSize), intY(g, localSize));
+        else
+            g.drawOval(intX(g, localPos), intY(g, localPos), intX(g, localSize), intY(g, localSize));
+    }
+
+    void drawImage(Graphics g, Rectangle rectangle, Image image) {
+
+        if (image == null) {
+            System.out.println("WARNING: Image is null!");
+            return;
+        }
+
+        Rectangle localRect = transformRectangle(rectangle);
+
+        Vector2 localPos = localRect.getPosition(new Vector2());
+        Vector2 localSize = localRect.getSize(new Vector2());
+
+        g.drawImage(image, intX(g, localPos), intY(g, localPos), intX(g, localSize), intY(g, localSize), this);
+    }
+
+    void drawImageFile(Graphics g, Rectangle rectangle, String imageSrc) {
+
+        var image = bufferedImages.get(imageSrc);
+
+        if (image != null) {
+            drawImage(g, rectangle, image);
+            return;
+        }
+
+        File file = new File(imageSrc);
+
+        try {
+            image = ImageIO.read(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        bufferedImages.put(imageSrc, image);
+        drawImage(g, rectangle, image);
+    }
+
+    void drawText(Graphics g, String text, Vector2 position) {
+
+        Vector2 localPos = transformPosition(position);
+        g.drawString(text, intX(g, localPos), intY(g, localPos));
+    }
+
+
 
 
 }

@@ -17,11 +17,13 @@ import java.util.PriorityQueue;
 public class DrawPanel extends JPanel {
 
     Rectangle viewport;
-    final float aspectRatio = 3/2f;
+    final float aspectRatio = 3 / 2f; // 24 x 16 metres
 
     private PriorityQueue<Drawable> drawListeners;
 
     private Dictionary<String, BufferedImage> bufferedImages;
+
+    int width, height;
 
     public DrawPanel() {
         super();
@@ -34,8 +36,8 @@ public class DrawPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
 
-        int height = g.getClipBounds().height;
-        int width = Math.round(aspectRatio * height);
+        height = g.getClipBounds().height;
+        width = Math.round(aspectRatio * height);
         g.setColor(new Color(0x0F2840));
         g.fillRect(0, 0, width, height);
 
@@ -46,8 +48,13 @@ public class DrawPanel extends JPanel {
     }
 
     void addListener(Drawable drawable) {
-
         drawListeners.add(drawable);
+    }
+
+    void addListeners(Iterable<PhysicalBody> drawables) {
+        for (Drawable d : drawables) {
+            drawListeners.add(d);
+        }
     }
 
     void removeListener(Drawable drawable) {

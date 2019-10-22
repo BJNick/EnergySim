@@ -1,9 +1,10 @@
 package me.bjnick.energysim;
 
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class Main {
 
@@ -12,37 +13,64 @@ public class Main {
         ViewFrame frame = new ViewFrame();
         frame.setVisible(true);
 
-        frame.drawPanel.addListener(new Drawable() {
+        var physicsEngine = new PhysicsEngine();
 
-            @Override
-            public void draw(DrawPanel dp, Graphics g) {
-                g.setColor(new Color(0xCB1931));
-                dp.drawOval(g, new Rectangle(-2,-2,4,4), true);
-                g.setColor(Color.WHITE);
-                dp.drawText(g, "Oval", new Vector2(-2,-2));
+        PhysicalBody pb = new PhysicalBody(new Vector2(-2, 7));
+        PhysicalBody pb2 = new PhysicalBody(new Vector2(2, 3), 8, new Vector2(2, 2), Color.MAGENTA);
+
+        physicsEngine.add(pb);
+        physicsEngine.add(pb2);
+
+        frame.drawPanel.addListeners(physicsEngine.bodies);
+
+        var timer = new FrameRateTimer() {
+            public void update(float delta) {
+                physicsEngine.simulateFor(delta);
             }
 
+            public void render() {
+                frame.drawPanel.repaint();
+            }
+        };
+
+        // FPS display
+        frame.drawPanel.addListener(new Drawable() {
+            @Override
+            public void draw(DrawPanel dp, Graphics g) {
+                g.drawString("FPS: " + (int) Math.ceil(timer.instantFPS), 5, 20);
+                g.drawString("UPS: " + (int) Math.ceil(timer.instantUPS), 5, 40);
+            }
             @Override
             public int getLayer() {
-                return 0;
+                return -100;
             }
         });
 
-        frame.drawPanel.addListener(new Drawable() {
+        frame.drawPanel.addListener(physicsEngine);
 
+        timer.updating = false;
+        timer.start();
+
+        frame.addKeyListener(new KeyListener() {
             @Override
-            public void draw(DrawPanel dp, Graphics g) {
-                g.setColor(new Color(0x39CB3C));
-                dp.drawImageFile(g, new Rectangle(2,1,3,3), "C:\\Users\\BJNick.DESKTOP-QK8PP2K\\Desktop\\Files\\saved001.png");
-                g.setColor(Color.WHITE);
-                dp.drawText(g, "Square", new Vector2(2,1));
+            public void keyTyped(KeyEvent e) {
             }
 
             @Override
-            public int getLayer() {
-                return -1;
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == ' ') {
+                    timer.updating = !timer.updating;
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
             }
         });
+
+        // To stop
+        //timer.running = false;
 
     }
 

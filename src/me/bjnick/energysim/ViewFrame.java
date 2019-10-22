@@ -11,7 +11,7 @@ class ViewFrame extends JFrame {
         super();
 
         setTitle("Energy Simulation - Mykyta APhysics SDS");
-        setSize(600, 400);
+        setSize(550, 400);
 
         drawPanel = new DrawPanel();
 

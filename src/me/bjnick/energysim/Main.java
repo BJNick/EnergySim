@@ -15,11 +15,13 @@ public class Main {
 
         var physicsEngine = new PhysicsEngine();
 
-        PhysicalBody pb = new PhysicalBody(new Vector2(-2, 7));
-        PhysicalBody pb2 = new PhysicalBody(new Vector2(2, 3), 8, new Vector2(2, 2), Color.MAGENTA);
-
+        PhysicalBody pb = new PhysicalBody(new Vector2(-2, 7), 8, new Vector2(2, 4), Color.MAGENTA);
         physicsEngine.add(pb);
+
+        PhysicalBody pb2 = new PhysicalBody(new Vector2(-2, 1), 8, new Vector2(2, 1), Color.PINK);
         physicsEngine.add(pb2);
+
+        physicsEngine.add(new StaticBody(new Vector2(0, -5), new Vector2(10, 2), Color.black));
 
         frame.drawPanel.addListeners(physicsEngine.bodies);
 

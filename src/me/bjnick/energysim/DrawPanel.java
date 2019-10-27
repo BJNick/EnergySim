@@ -74,6 +74,7 @@ public class DrawPanel extends JPanel {
         if (ret.width == 0 || ret.height == 0)
             System.out.println("WARNING: Width or height of the rectangle is zero.");
         ret.setPosition(transformPosition(ret.getPosition(new Vector2())));
+        ret.y -= ret.height;
         return ret;
     }
 

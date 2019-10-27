@@ -3,11 +3,11 @@ package me.bjnick.energysim;
 import com.badlogic.gdx.math.Vector2;
 
 import java.awt.*;
-import java.util.Stack;
+import java.util.ArrayList;
 
 public class PhysicsEngine implements Drawable {
 
-    Stack<PhysicalBody> bodies;
+    ArrayList<PhysicalBody> bodies;
 
     float simulationRate = 1f;
 
@@ -22,10 +22,12 @@ public class PhysicsEngine implements Drawable {
     float airEnergy = 0;
     float temperature = 20 + 273.15f;
 
+    float collisionEnergyLoss = 0.9f;
+
     float potentialEnergyZero = -9;
 
     public PhysicsEngine() {
-        bodies = new Stack<>();
+        bodies = new ArrayList<>();
     }
 
     public void simulateFor(float delta /* in seconds */) {
@@ -41,6 +43,28 @@ public class PhysicsEngine implements Drawable {
             var drag = body.getDragForce(body.velocity);
             body.forces.add(drag);
 
+            //var dist = body.move(delta);
+            // Add heat energy, work done by the bodies on air
+            //addHeatEnergy(drag.len() * dist);
+
+        }
+        for (int i = 0; i < bodies.size(); i++) {
+            for (int j = i + 1; j < bodies.size(); j++) {
+                if (bodies.get(i).estimateCollision(bodies.get(j), delta)) {
+                    var excess_energy = bodies.get(i).resolveCollision(bodies.get(j), collisionEnergyLoss);
+                    addHeatEnergy(excess_energy);
+                    var a = bodies.get(i);
+                    var b = bodies.get(j);
+                    /*if (!a.estimateCollision(b, delta*2)) {
+                        a.velocity.scl(1.1f);
+                        b.velocity.scl(1.1f);
+                        System.out.println("Accounting...");
+                    }*/
+                }
+            }
+        }
+        for (PhysicalBody body : bodies) {
+            var drag = body.getDragForce(body.velocity);
             var dist = body.move(delta);
             // Add heat energy, work done by the bodies on air
             addHeatEnergy(drag.len() * dist);

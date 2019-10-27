@@ -1,6 +1,7 @@
 package me.bjnick.energysim;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 
 import java.awt.*;
@@ -18,6 +19,7 @@ public class PhysicalBody implements Drawable {
     PhysicsEngine engine;
 
     Queue<Vector2> forces;
+    Queue<Vector2> lastForces;
 
     public PhysicalBody(Vector2 position) {
         this.position = position;
@@ -45,7 +47,8 @@ public class PhysicalBody implements Drawable {
         for (Vector2 F : forces) {
             netForce.add(F);
         }
-        forces.clear();
+        lastForces = forces;
+        forces = new LinkedList<>();
 
         Vector2 acceleration = netForce.cpy().scl(1f / mass);
 
@@ -76,14 +79,73 @@ public class PhysicalBody implements Drawable {
         return mass * (position.y - engine.potentialEnergyZero) * engine.gField.len();
     }
 
+    public boolean detectCollision(PhysicalBody b2) {
+        recalculateShape();
+        b2.recalculateShape();
+        return shape.bounds.overlaps(b2.shape.bounds);
+    }
+
+    public boolean estimateCollision(PhysicalBody b2, float deltaTime) {
+        var a = predictShapePos(deltaTime);
+        var b = b2.predictShapePos(deltaTime);
+        return a.overlaps(b);
+    }
+
+    private void recalculateShape() {
+        shape.bounds = new Rectangle(position.x - shape.bounds.width / 2, position.y + shape.bounds.height / 2, shape.bounds.width, shape.bounds.height);
+    }
+
+    private Rectangle predictShapePos(float deltaTime) {
+        var newPos = position.cpy().add(velocity.cpy().scl(deltaTime));
+        return new Rectangle(newPos.x - shape.bounds.width / 2, newPos.y + shape.bounds.height / 2, shape.bounds.width, shape.bounds.height);
+    }
+
+    public float resolveCollision(PhysicalBody b2, float energyLoss) {
+        var newVels = solveMomentumKEEquation(this.mass, this.velocity, b2.mass, b2.velocity);
+        newVels[0].scl((float) Math.sqrt(energyLoss));
+        newVels[1].scl((float) Math.sqrt(energyLoss));
+
+        float totalKEnergy = calculateKineticEnergy() + b2.calculateKineticEnergy();
+        float newEnergy = (Float.isFinite(this.mass) ? newVels[0].len2() * this.mass / 2 : 0) + (Float.isFinite(b2.mass) ? newVels[1].len2() * b2.mass / 2 : 0);
+
+        this.velocity = newVels[0];
+        b2.velocity = newVels[1];
+
+        return totalKEnergy - newEnergy;
+    }
+
+    private Vector2[] solveMomentumKEEquation(float mA, Vector2 vA, float mB, Vector2 vB) {
+        if (Float.isInfinite(mA))
+            return new Vector2[]{
+                    vA.cpy(),
+                    vB.cpy().scl(-1)
+            };
+        else if (Float.isInfinite(mB))
+            return new Vector2[]{
+                    vA.cpy().scl(-1),
+                    vB.cpy()
+            };
+
+        return new Vector2[]{
+                vA.cpy().scl((mA - mB) / (mA + mB)).add(vB.cpy().scl((2 * mB) / (mA + mB))),
+                vB.cpy().scl((mB - mA) / (mA + mB)).add(vA.cpy().scl((2 * mA) / (mA + mB)))
+        };
+    }
+
 
     @Override
     public void draw(DrawPanel dp, Graphics g) {
-        shape.bounds = new Rectangle(position.x - shape.bounds.width / 2, position.y + shape.bounds.height / 2, shape.bounds.width, shape.bounds.height);
+        recalculateShape();
         shape.draw(dp, g);
         g.setColor(Color.WHITE);
-        dp.drawText(g, "KE = " + Math.round(calculateKineticEnergy()), position.cpy().add(1, 0));
-        dp.drawText(g, "PE = " + Math.round(calculateGPotentialEnergy()), position.cpy().add(1, -0.7f));
+        dp.drawText(g, "KE = " + Math.round(calculateKineticEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.5f, 1f));
+        dp.drawText(g, "PE = " + Math.round(calculateGPotentialEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.5f, 0.5f));
+        /*var centre = dp.transformPosition(position.cpy());
+        if (lastForces != null)
+            for (Vector2 force : lastForces) {
+                force = force.cpy().scl(0.01f);
+                g.drawLine(dp.intX(g, centre.cpy()), dp.intY(g, centre.cpy()), dp.intX(g, force.cpy()), dp.intY(g, force.cpy()));
+            }*/
     }
 
     @Override

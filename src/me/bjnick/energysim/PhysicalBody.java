@@ -31,11 +31,12 @@ public class PhysicalBody implements Drawable {
     }
 
     public PhysicalBody(Vector2 position, float mass, Vector2 size, Color color) {
-        this.position = position;
+        this.position = position.cpy();//.add(size.cpy().scl(0.5f));
         this.mass = mass;
         shape = new BodyShape.Box();
         shape.color = color;
         shape.bounds = new Rectangle(0, 0, size.x, size.y);
+        recalculateShape();
         forces = new LinkedList<>();
     }
 
@@ -54,11 +55,6 @@ public class PhysicalBody implements Drawable {
         position.add(acceleration.cpy().scl(0.5f * deltaTime * deltaTime)); // x = x0 + 1/2(a)(dt^2)
 
         velocity = velocity.add(acceleration.cpy().scl(deltaTime)); // v = v0 + a(dt)
-
-        // Bounce
-        if (position.y < -8) {
-            velocity = new Vector2(0, Math.abs(velocity.y));
-        }
 
         return initialPos.sub(position).len();
     }
@@ -96,13 +92,13 @@ public class PhysicalBody implements Drawable {
         return a.overlaps(b);
     }
 
-    private void recalculateShape() {
-        shape.bounds = new Rectangle(position.x - shape.bounds.width / 2, position.y + shape.bounds.height / 2, shape.bounds.width, shape.bounds.height);
+    protected void recalculateShape() {
+        shape.bounds = new Rectangle(position.x - shape.bounds.width / 2, position.y - shape.bounds.height / 2, shape.bounds.width, shape.bounds.height);
     }
 
-    private Rectangle predictShapePos(float deltaTime) {
+    protected Rectangle predictShapePos(float deltaTime) {
         var newPos = position.cpy().add(velocity.cpy().scl(deltaTime));
-        return new Rectangle(newPos.x - shape.bounds.width / 2, newPos.y + shape.bounds.height / 2, shape.bounds.width, shape.bounds.height);
+        return new Rectangle(newPos.x - shape.bounds.width / 2, newPos.y - shape.bounds.height / 2, shape.bounds.width, shape.bounds.height);
     }
 
     public Vector2[] resolveCollision(PhysicalBody b2, float energyLoss) {
@@ -143,8 +139,8 @@ public class PhysicalBody implements Drawable {
         recalculateShape();
         shape.draw(dp, g);
         g.setColor(Color.WHITE);
-        dp.drawText(g, "KE = " + Math.round(calculateKineticEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.5f, 1f));
-        dp.drawText(g, "PE = " + Math.round(calculateGPotentialEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.5f, 0.5f));
+        dp.drawText(g, "KE = " + Math.round(calculateKineticEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.5f, shape.bounds.height));
+        dp.drawText(g, "PE = " + Math.round(calculateGPotentialEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.5f, shape.bounds.height - 0.5f));
         /*var centre = dp.transformPosition(position.cpy());
         if (lastForces != null)
             for (Vector2 force : lastForces) {

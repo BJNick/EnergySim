@@ -31,6 +31,17 @@ public class StaticBody extends PhysicalBody {
     }
 
     @Override
+    public boolean estimateCollision(PhysicalBody b2, float deltaTime) {
+        return !(b2 instanceof StaticBody) && b2.estimateCollision(this, deltaTime);
+    }
+
+    @Override
+    public void draw(DrawPanel dp, Graphics g) {
+        super.recalculateShape();
+        shape.draw(dp, g);
+    }
+
+    @Override
     public Vector2 getDragForce(Vector2 velocity) {
         return Vector2.Zero.cpy();
     }

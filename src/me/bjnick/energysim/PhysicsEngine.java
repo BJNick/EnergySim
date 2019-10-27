@@ -89,6 +89,7 @@ public class PhysicsEngine implements Drawable {
 
     @Override
     public void draw(DrawPanel dp, Graphics g) {
+        g.setColor(Color.white);
         g.drawString("E-heat: " + Math.round(airEnergy), dp.width - 100, 20);
         g.drawString("T: " + Math.round(temperature * 10 - 2731.5f) / 10f + "C", dp.width - 100, 40);
         g.drawString("S: " + Math.round((airEnergy / temperature) * 10) / 10f, dp.width - 100, 60);

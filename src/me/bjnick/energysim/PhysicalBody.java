@@ -98,6 +98,10 @@ public class PhysicalBody implements Drawable {
 
     protected Rectangle predictShapePos(float deltaTime) {
         var newPos = position.cpy().add(velocity.cpy().scl(deltaTime));
+        if (Float.isFinite(mass)) {
+            Vector2 acceleration = getNetForce().scl(1 / mass);
+            newPos.add(acceleration.cpy().scl(0.5f * deltaTime * deltaTime));
+        }
         return new Rectangle(newPos.x - shape.bounds.width / 2, newPos.y - shape.bounds.height / 2, shape.bounds.width, shape.bounds.height);
     }
 

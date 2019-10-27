@@ -22,7 +22,7 @@ public class PhysicsEngine implements Drawable {
     float airEnergy = 0;
     float temperature = 20 + 273.15f;
 
-    float collisionEnergyLoss = 0.9f;
+    float collisionEnergyLoss = 0.7f;
 
     float potentialEnergyZero = -9;
 
@@ -42,6 +42,9 @@ public class PhysicsEngine implements Drawable {
             // Air resistance
             var drag = body.getDragForce(body.velocity);
             body.forces.add(drag);
+
+            var buoyancy = gField.cpy().scl(-airDensity * body.shape.volume.get());
+            body.forces.add(buoyancy);
 
             //var dist = body.move(delta);
             // Add heat energy, work done by the bodies on air

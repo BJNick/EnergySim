@@ -67,6 +67,30 @@ public class PhysicalBody implements Drawable {
         return netForce;
     }
 
+    public Vector2 getNormalForceDir(PhysicalBody b2) { // Force acting on b2
+        this.recalculateShape();
+        b2.recalculateShape();
+        var topY1 = shape.bounds.y + shape.bounds.height;
+        var bottomY1 = shape.bounds.y;
+        var leftX1 = shape.bounds.x;
+        var rightX1 = shape.bounds.x + shape.bounds.width;
+        var topY2 = b2.shape.bounds.y + b2.shape.bounds.height;
+        var bottomY2 = b2.shape.bounds.y;
+        var leftX2 = b2.shape.bounds.x;
+        var rightX2 = b2.shape.bounds.x + b2.shape.bounds.width;
+
+        if (bottomY2 > this.position.y && !(leftX2 > rightX1 || rightX2 < leftX1)) {
+            return new Vector2(0, 1);
+        } else if (topY2 < this.position.y && !(leftX2 > rightX1 || rightX2 < leftX1)) {
+            return new Vector2(0, -1);
+        } else if (rightX2 < this.position.x && !(topY2 < bottomY1 || bottomY2 > topY1)) {
+            return new Vector2(-1, 0);
+        } else if (leftX2 > this.position.x && !(topY2 < bottomY1 || bottomY2 > topY1)) {
+            return new Vector2(1, 0);
+        }
+        return new Vector2(0, 0);
+    }
+
     public Vector2 getDragForce(Vector2 velocity) {
         Vector2 relVel = velocity.cpy().sub(engine.wind);
         return relVel.cpy().nor().scl(-0.5f * engine.airDensity * shape.area.apply(relVel.cpy()) * shape.dragC * relVel.len2());
@@ -117,6 +141,13 @@ public class PhysicalBody implements Drawable {
         //b2.velocity = newVels[1];
 
         return new Vector2[]{newVels[0], newVels[1], new Vector2(totalKEnergy - newEnergy, 0)};
+    }
+
+    private Vector2[] getNormalVelocity(Vector2 vel, PhysicalBody b) {
+        var N = b.getNormalForceDir(this);
+        var Vy = N.cpy().scl((float) Math.sin(Math.toRadians(90 + vel.angle() - N.angle())) * vel.len());
+        var Vx = N.cpy().rotate(-90).scl((float) Math.cos(Math.toRadians(90 + vel.angle() - N.angle())) * this.velocity.len());
+        return new Vector2[]{Vy, Vx};
     }
 
     private Vector2[] solveMomentumKEEquation(float mA, Vector2 vA, float mB, Vector2 vB) {

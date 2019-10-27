@@ -27,7 +27,7 @@ public class Main {
         pb.velocity = new Vector2(10, 10);
         physicsEngine.add(pb);
 
-        pb = new PhysicalBody(new Vector2(4, 1), 100, new Vector2(1, 1), Color.GREEN);
+        pb = new PhysicalBody(new Vector2(4, 1), 100, new Vector2(1, 1), Color.BLUE);
         pb.velocity = new Vector2(-20, 12f);
         physicsEngine.add(pb);
 

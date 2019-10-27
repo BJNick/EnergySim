@@ -22,7 +22,8 @@ public class PhysicsEngine implements Drawable {
     float airEnergy = 0;
     float temperature = 20 + 273.15f;
 
-    float collisionEnergyLoss = 0.7f;
+    float collisionEnergyLoss = 0.5f;
+    float defaultCoefFriction = 0.1f;
 
     float potentialEnergyZero = -9;
 
@@ -42,13 +43,9 @@ public class PhysicsEngine implements Drawable {
             // Air resistance
             var drag = body.getDragForce(body.velocity);
             body.forces.add(drag);
-
+            // Buoyancy
             var buoyancy = gField.cpy().scl(-airDensity * body.shape.volume.get());
             body.forces.add(buoyancy);
-
-            //var dist = body.move(delta);
-            // Add heat energy, work done by the bodies on air
-            //addHeatEnergy(drag.len() * dist);
 
         }
         for (int i = 0; i < bodies.size(); i++) {
@@ -56,19 +53,23 @@ public class PhysicsEngine implements Drawable {
                 var a = bodies.get(i);
                 var b = bodies.get(j);
                 if (bodies.get(i).estimateCollision(bodies.get(j), delta)) {
-                    //var excess_energy = bodies.get(i).resolveCollision(bodies.get(j), collisionEnergyLoss);
-                    //addHeatEnergy(excess_energy);
-                    //var a = bodies.get(i);
-                    //var b = bodies.get(j);
-                    /*if (!a.estimateCollision(b, delta*2)) {
-                        a.velocity.scl(1.1f);
-                        b.velocity.scl(1.1f);
-                        System.out.println("Accounting...");
-                    }*/
                     var result = a.resolveCollision(b, collisionEnergyLoss);
-                    a.forces.add(result[0].cpy().sub(a.velocity).scl(a.mass / delta).sub(a.getNetForce()));
-                    b.forces.add(result[1].cpy().sub(b.velocity).scl(b.mass / delta).sub(b.getNetForce()));
-                    addHeatEnergy(result[2].x);
+                    // Normal force
+                    var f1 = result[0].cpy().sub(a.velocity).scl(a.mass / delta).sub(a.getNetForce());
+                    var N1 = b.getNormalForceDir(a);
+                    var Fy1 = N1.cpy().scl((float) Math.sin(Math.toRadians(90 + f1.angle() - N1.angle())) * f1.len());
+                    a.forces.add(Fy1);
+                    var fric1 = N1.cpy().rotate90(-1).scl((float) Math.cos(Math.toRadians(90 + a.velocity.angle() - N1.angle())) * Fy1.len() * -defaultCoefFriction);
+                    a.forces.add(fric1);
+
+                    var f2 = result[1].cpy().sub(b.velocity).scl(b.mass / delta).sub(b.getNetForce());
+                    var N2 = a.getNormalForceDir(b);
+                    var Fy2 = N2.cpy().scl((float) Math.sin(Math.toRadians(90 + f2.angle() - N2.angle())) * f2.len());
+                    b.forces.add(Fy2);
+                    var fric2 = N2.cpy().rotate90(-1).scl((float) Math.cos(Math.toRadians(90 + b.velocity.angle() - N2.angle())) * Fy2.len() * -defaultCoefFriction);
+                    b.forces.add(fric2);
+
+                    //addHeatEnergy(result[2].x); TODO
                 }
             }
         }

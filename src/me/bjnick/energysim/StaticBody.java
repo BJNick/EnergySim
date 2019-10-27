@@ -36,11 +36,11 @@ public class StaticBody extends PhysicalBody {
     }
 
     @Override
-    public float resolveCollision(PhysicalBody b2, float energyLoss) {
+    public Vector2[] resolveCollision(PhysicalBody b2, float energyLoss) {
         if (!(b2 instanceof StaticBody)) {
             return b2.resolveCollision(this, energyLoss);
         } else {
-            return 0;
+            return null;
         }
     }
 }

@@ -43,10 +43,7 @@ public class PhysicalBody implements Drawable {
 
         Vector2 initialPos = position.cpy();
 
-        Vector2 netForce = Vector2.Zero.cpy();
-        for (Vector2 F : forces) {
-            netForce.add(F);
-        }
+        var netForce = getNetForce();
         lastForces = forces;
         forces = new LinkedList<>();
 
@@ -64,6 +61,14 @@ public class PhysicalBody implements Drawable {
         }
 
         return initialPos.sub(position).len();
+    }
+
+    public Vector2 getNetForce() {
+        Vector2 netForce = Vector2.Zero.cpy();
+        for (Vector2 F : forces) {
+            netForce.add(F);
+        }
+        return netForce;
     }
 
     public Vector2 getDragForce(Vector2 velocity) {
@@ -100,7 +105,7 @@ public class PhysicalBody implements Drawable {
         return new Rectangle(newPos.x - shape.bounds.width / 2, newPos.y + shape.bounds.height / 2, shape.bounds.width, shape.bounds.height);
     }
 
-    public float resolveCollision(PhysicalBody b2, float energyLoss) {
+    public Vector2[] resolveCollision(PhysicalBody b2, float energyLoss) {
         var newVels = solveMomentumKEEquation(this.mass, this.velocity, b2.mass, b2.velocity);
         newVels[0].scl((float) Math.sqrt(energyLoss));
         newVels[1].scl((float) Math.sqrt(energyLoss));
@@ -108,22 +113,22 @@ public class PhysicalBody implements Drawable {
         float totalKEnergy = calculateKineticEnergy() + b2.calculateKineticEnergy();
         float newEnergy = (Float.isFinite(this.mass) ? newVels[0].len2() * this.mass / 2 : 0) + (Float.isFinite(b2.mass) ? newVels[1].len2() * b2.mass / 2 : 0);
 
-        this.velocity = newVels[0];
-        b2.velocity = newVels[1];
+        //this.velocity = newVels[0];
+        //b2.velocity = newVels[1];
 
-        return totalKEnergy - newEnergy;
+        return new Vector2[]{newVels[0], newVels[1], new Vector2(totalKEnergy - newEnergy, 0)};
     }
 
     private Vector2[] solveMomentumKEEquation(float mA, Vector2 vA, float mB, Vector2 vB) {
         if (Float.isInfinite(mA))
             return new Vector2[]{
-                    vA.cpy(),
-                    vB.cpy().scl(-1)
+                    vA.cpy().scl(1).add(vB.cpy().scl(0)),
+                    vB.cpy().scl(-1).add(vA.cpy().scl(1))
             };
         else if (Float.isInfinite(mB))
             return new Vector2[]{
-                    vA.cpy().scl(-1),
-                    vB.cpy()
+                    vA.cpy().scl(-1).add(vB.cpy().scl(1)),
+                    vB.cpy().scl(1).add(vA.cpy().scl(0))
             };
 
         return new Vector2[]{

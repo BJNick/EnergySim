@@ -50,16 +50,22 @@ public class PhysicsEngine implements Drawable {
         }
         for (int i = 0; i < bodies.size(); i++) {
             for (int j = i + 1; j < bodies.size(); j++) {
+                var a = bodies.get(i);
+                var b = bodies.get(j);
                 if (bodies.get(i).estimateCollision(bodies.get(j), delta)) {
-                    var excess_energy = bodies.get(i).resolveCollision(bodies.get(j), collisionEnergyLoss);
-                    addHeatEnergy(excess_energy);
-                    var a = bodies.get(i);
-                    var b = bodies.get(j);
+                    //var excess_energy = bodies.get(i).resolveCollision(bodies.get(j), collisionEnergyLoss);
+                    //addHeatEnergy(excess_energy);
+                    //var a = bodies.get(i);
+                    //var b = bodies.get(j);
                     /*if (!a.estimateCollision(b, delta*2)) {
                         a.velocity.scl(1.1f);
                         b.velocity.scl(1.1f);
                         System.out.println("Accounting...");
                     }*/
+                    var result = a.resolveCollision(b, collisionEnergyLoss);
+                    a.forces.add(result[0].cpy().sub(a.velocity).scl(a.mass / delta).sub(a.getNetForce()));
+                    b.forces.add(result[1].cpy().sub(b.velocity).scl(b.mass / delta).sub(b.getNetForce()));
+                    addHeatEnergy(result[2].x);
                 }
             }
         }

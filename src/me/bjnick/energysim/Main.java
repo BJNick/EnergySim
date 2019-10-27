@@ -15,10 +15,11 @@ public class Main {
 
         var physicsEngine = new PhysicsEngine();
 
-        PhysicalBody pb = new PhysicalBody(new Vector2(-2, 7), 8, new Vector2(2, 4), Color.MAGENTA);
+        PhysicalBody pb = new PhysicalBody(new Vector2(-2, 0), 8, new Vector2(2, 4), Color.MAGENTA);
         physicsEngine.add(pb);
 
-        PhysicalBody pb2 = new PhysicalBody(new Vector2(-2, 1), 8, new Vector2(2, 1), Color.PINK);
+        PhysicalBody pb2 = new PhysicalBody(new Vector2(2, 1), 8, new Vector2(2, 1), Color.PINK);
+        pb2.velocity = new Vector2(-4, 0);
         physicsEngine.add(pb2);
 
         physicsEngine.add(new StaticBody(new Vector2(0, -5), new Vector2(10, 2), Color.black));

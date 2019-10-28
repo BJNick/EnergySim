@@ -17,7 +17,7 @@ import java.util.PriorityQueue;
 public class DrawPanel extends JPanel {
 
     Rectangle viewport;
-    final float aspectRatio = 3 / 2f; // 24 x 16 metres
+    final float aspectRatio = 2 / 2f; // 24 x 16 metres
 
     private PriorityQueue<Drawable> drawListeners;
 
@@ -27,7 +27,7 @@ public class DrawPanel extends JPanel {
 
     public DrawPanel() {
         super();
-        viewport = new Rectangle(0, 0, 16 * aspectRatio, 16);
+        viewport = new Rectangle(0, 0, 1.25f * aspectRatio, 1.25f);
         viewport.setCenter(0, 0);
         drawListeners = new PriorityQueue<>((d1, d2) -> d2.getLayer()-d1.getLayer());
         bufferedImages = new Hashtable<>();

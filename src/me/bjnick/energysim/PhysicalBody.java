@@ -174,8 +174,8 @@ public class PhysicalBody implements Drawable {
         recalculateShape();
         shape.draw(dp, g);
         g.setColor(Color.WHITE);
-        dp.drawText(g, "KE = " + Math.round(calculateKineticEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.5f, shape.bounds.height));
-        dp.drawText(g, "PE = " + Math.round(calculateGPotentialEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.5f, shape.bounds.height - 0.5f));
+        dp.drawText(g, "KE = " + Math.round(calculateKineticEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.03f, shape.bounds.height / 2));
+        dp.drawText(g, "PE = " + Math.round(calculateGPotentialEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.03f, shape.bounds.height / 2 - 0.03f));
         /*var centre = dp.transformPosition(position.cpy());
         if (lastForces != null)
             for (Vector2 force : lastForces) {

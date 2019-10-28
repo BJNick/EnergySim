@@ -14,8 +14,8 @@ public class PhysicsEngine implements Drawable {
     Vector2 gField = new Vector2(0, -9.81f);
     float airDensity = 1.225f; // kg / m^3
 
-    float roomVolume = 24 * 16 * 3;
-    float airHeatCapacity = 0.718f;
+    float roomVolume = 1;
+    float airHeatCapacity = 718f; // J / kg
 
     Vector2 wind = Vector2.Zero.cpy();
 
@@ -23,7 +23,7 @@ public class PhysicsEngine implements Drawable {
     float temperature = 20 + 273.15f;
 
     float collisionEnergyLoss = 0.5f;
-    float defaultCoefFriction = 0.1f;
+    float defaultCoefFriction = 0.2f;
 
     float potentialEnergyZero = -9;
 
@@ -60,14 +60,22 @@ public class PhysicsEngine implements Drawable {
                     var Fy1 = N1.cpy().scl((float) Math.sin(Math.toRadians(90 + f1.angle() - N1.angle())) * f1.len());
                     a.forces.add(Fy1);
                     var fric1 = N1.cpy().rotate90(-1).scl((float) Math.cos(Math.toRadians(90 + a.velocity.angle() - N1.angle())) * Fy1.len() * -defaultCoefFriction);
-                    a.forces.add(fric1);
+                    var vel1 = N1.cpy().rotate90(-1).scl((float) Math.cos(Math.toRadians(90 + a.velocity.angle() - N1.angle())) * a.velocity.len());
+                    if (vel1.len() > (fric1.len() / a.mass) * delta)
+                        a.forces.add(fric1);
+                    else
+                        a.forces.add(fric1.nor().scl((vel1.len() * a.mass) / delta));
 
                     var f2 = result[1].cpy().sub(b.velocity).scl(b.mass / delta).sub(b.getNetForce());
                     var N2 = a.getNormalForceDir(b);
                     var Fy2 = N2.cpy().scl((float) Math.sin(Math.toRadians(90 + f2.angle() - N2.angle())) * f2.len());
                     b.forces.add(Fy2);
                     var fric2 = N2.cpy().rotate90(-1).scl((float) Math.cos(Math.toRadians(90 + b.velocity.angle() - N2.angle())) * Fy2.len() * -defaultCoefFriction);
-                    b.forces.add(fric2);
+                    var vel2 = N2.cpy().rotate90(-1).scl((float) Math.cos(Math.toRadians(90 + b.velocity.angle() - N2.angle())) * b.velocity.len());
+                    if (vel2.len() > (fric2.len() / b.mass) * delta)
+                        b.forces.add(fric2);
+                    else
+                        b.forces.add(fric2.nor().scl((vel2.len() * b.mass) / delta));
 
                     //addHeatEnergy(result[2].x); TODO
                 }

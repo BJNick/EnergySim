@@ -54,4 +54,9 @@ public class StaticBody extends PhysicalBody {
             return null;
         }
     }
+
+    @Override
+    public int getLayer() {
+        return 10000;
+    }
 }

@@ -15,26 +15,26 @@ public class Main {
 
         var physicsEngine = new PhysicsEngine();
 
-        PhysicalBody pb = new PhysicalBody(new Vector2(-2, -5), 80, new Vector2(2, 4), Color.MAGENTA);
-        pb.velocity = new Vector2(0, 20);
+        PhysicalBody pb = new PhysicalBody(new Vector2(-0.2f, 0f), 20, new Vector2(0.2f, 0.5f), Color.MAGENTA);
+        pb.velocity = new Vector2(0, 2);
         physicsEngine.add(pb);
 
-        pb = new PhysicalBody(new Vector2(2, 0), 40, new Vector2(2, 2), Color.PINK);
-        pb.velocity = new Vector2(-10, 0);
+        pb = new PhysicalBody(new Vector2(0.2f, -0.2f), 7, new Vector2(.25f, .25f), Color.PINK);
+        pb.velocity = new Vector2(-1, 0);
         physicsEngine.add(pb);
 
-        pb = new PhysicalBody(new Vector2(-4, 1), 100, new Vector2(1, 1), Color.GREEN);
-        pb.velocity = new Vector2(10, 10);
+        pb = new PhysicalBody(new Vector2(-0.1f, .3f), 1, new Vector2(.1f, .1f), Color.GREEN);
+        pb.velocity = new Vector2(1, 1);
         physicsEngine.add(pb);
 
-        pb = new PhysicalBody(new Vector2(4, 1), 100, new Vector2(1, 1), Color.BLUE);
-        pb.velocity = new Vector2(-20, 12f);
+        pb = new PhysicalBody(new Vector2(0.1f, .1f), 1, new Vector2(.1f, .1f), Color.BLUE);
+        pb.velocity = new Vector2(-2, 1.2f);
         physicsEngine.add(pb);
 
-        physicsEngine.add(new StaticBody(new Vector2(0, -7.5f), new Vector2(24, 1), Color.black));
-        physicsEngine.add(new StaticBody(new Vector2(0, 7.5f), new Vector2(24, 1), Color.black));
-        physicsEngine.add(new StaticBody(new Vector2(-11.5f, 0f), new Vector2(1, 16), Color.black));
-        physicsEngine.add(new StaticBody(new Vector2(11.5f, 0f), new Vector2(1, 16), Color.black));
+        physicsEngine.add(new StaticBody(new Vector2(0, -1f), new Vector2(2f, 1f), Color.black));
+        physicsEngine.add(new StaticBody(new Vector2(0, 1f), new Vector2(2f, 1f), Color.black));
+        physicsEngine.add(new StaticBody(new Vector2(-1f, 0f), new Vector2(1f, 2f), Color.black));
+        physicsEngine.add(new StaticBody(new Vector2(1f, 0f), new Vector2(1f, 2f), Color.black));
 
         frame.drawPanel.addListeners(physicsEngine.bodies);
 

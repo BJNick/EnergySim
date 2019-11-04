@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -12,6 +13,11 @@ public class PhysicalBody implements Drawable {
 
     BodyShape shape;
     float mass;
+    float specificHeatCapacity = 466f; // J / kg / K
+
+    float heatEnergy = specificHeatCapacity * mass * (20 + 273.15f);
+    double temperature = (20 + 273.15f);
+    float radiatingCoef = 100f;
 
     Vector2 position;
     Vector2 velocity = Vector2.Zero.cpy();
@@ -168,6 +174,20 @@ public class PhysicalBody implements Drawable {
         };
     }
 
+    public double radiateHeat(PhysicsEngine room, float deltaTime) {
+        double heat = radiatingCoef * shape.surfaceArea.get() * (this.temperature - room.temperature) * deltaTime;
+        this.addHeatEnergy(-heat);
+        return heat;
+    }
+
+    public void addHeatEnergy(double work) {
+        heatEnergy += work;
+        temperature += work / (1d * mass * specificHeatCapacity);
+    }
+
+    public float getEntropy() {
+        return heatEnergy / (float) temperature;
+    }
 
     @Override
     public void draw(DrawPanel dp, Graphics g) {
@@ -176,6 +196,7 @@ public class PhysicalBody implements Drawable {
         g.setColor(Color.WHITE);
         dp.drawText(g, "KE = " + Math.round(calculateKineticEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.03f, shape.bounds.height / 2));
         dp.drawText(g, "PE = " + Math.round(calculateGPotentialEnergy()), position.cpy().add(shape.bounds.width / 2 + 0.03f, shape.bounds.height / 2 - 0.03f));
+        dp.drawText(g, "t=" + new DecimalFormat("#0.00000").format(temperature - 273.15f), position.cpy());
         /*var centre = dp.transformPosition(position.cpy());
         if (lastForces != null)
             for (Vector2 force : lastForces) {

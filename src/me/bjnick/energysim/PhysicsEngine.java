@@ -14,18 +14,20 @@ public class PhysicsEngine implements Drawable {
     Vector2 gField = new Vector2(0, -9.81f);
     float airDensity = 1.225f; // kg / m^3
 
-    float roomVolume = 1;
-    float airHeatCapacity = 718f; // J / kg
+    float roomVolume = 2;
+    float airHeatCapacity = 1012f; // J / kg / K
 
     Vector2 wind = Vector2.Zero.cpy();
 
     float airEnergy = 0;
-    float temperature = 20 + 273.15f;
+    double temperature = 20 + 273.15f;
 
     float collisionEnergyLoss = 0.5f;
     float defaultCoefFriction = 0.2f;
 
     float potentialEnergyZero = -9;
+
+    float bodyEntropy = 0;
 
     public PhysicsEngine() {
         bodies = new ArrayList<>();
@@ -37,6 +39,7 @@ public class PhysicsEngine implements Drawable {
     }
 
     private void moveBodies(float delta) {
+        float newBodyEntropy = 0;
         for (PhysicalBody body : bodies) {
             // Gravity
             body.forces.add(gField.cpy().scl(body.mass));
@@ -77,7 +80,14 @@ public class PhysicsEngine implements Drawable {
                     else
                         b.forces.add(fric2.nor().scl((vel2.len() * b.mass) / delta));
 
-                    //addHeatEnergy(result[2].x); TODO
+                    if (a instanceof StaticBody)
+                        a.addHeatEnergy(result[2].x);
+                    else if (b instanceof StaticBody)
+                        b.addHeatEnergy(result[2].x);
+                    else {
+                        a.addHeatEnergy(result[2].x / 2);
+                        b.addHeatEnergy(result[2].x / 2);
+                    }
                 }
             }
         }
@@ -86,10 +96,13 @@ public class PhysicsEngine implements Drawable {
             var dist = body.move(delta);
             // Add heat energy, work done by the bodies on air
             addHeatEnergy(drag.len() * dist);
+            addHeatEnergy(body.radiateHeat(this, delta));
+            newBodyEntropy += body.getEntropy();
         }
+        bodyEntropy = newBodyEntropy;
     }
 
-    private void addHeatEnergy(float work) {
+    private void addHeatEnergy(double work) {
         airEnergy += work;
         temperature += work / ((roomVolume * airDensity) * airHeatCapacity);
     }
@@ -104,7 +117,7 @@ public class PhysicsEngine implements Drawable {
         g.setColor(Color.white);
         g.drawString("E-heat: " + Math.round(airEnergy), dp.width - 100, 20);
         g.drawString("T: " + Math.round(temperature * 10 - 2731.5f) / 10f + "C", dp.width - 100, 40);
-        g.drawString("S: " + Math.round((airEnergy / temperature) * 10) / 10f, dp.width - 100, 60);
+        g.drawString("S: " + Math.round((airEnergy / temperature + bodyEntropy) * 10) / 10f, dp.width - 100, 60);
     }
 
     @Override

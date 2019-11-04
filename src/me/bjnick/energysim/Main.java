@@ -16,7 +16,7 @@ public class Main {
         var physicsEngine = new PhysicsEngine();
 
         PhysicalBody pb = new PhysicalBody(new Vector2(-0.2f, 0f), 20, new Vector2(0.2f, 0.5f), Color.MAGENTA);
-        pb.velocity = new Vector2(0, 2);
+        pb.velocity = new Vector2(0, 10);
         physicsEngine.add(pb);
 
         pb = new PhysicalBody(new Vector2(0.2f, -0.2f), 7, new Vector2(.25f, .25f), Color.PINK);
@@ -24,17 +24,17 @@ public class Main {
         physicsEngine.add(pb);
 
         pb = new PhysicalBody(new Vector2(-0.1f, .3f), 1, new Vector2(.1f, .1f), Color.GREEN);
-        pb.velocity = new Vector2(1, 1);
+        pb.velocity = new Vector2(1, 0);
         physicsEngine.add(pb);
 
         pb = new PhysicalBody(new Vector2(0.1f, .1f), 1, new Vector2(.1f, .1f), Color.BLUE);
         pb.velocity = new Vector2(-2, 1.2f);
         physicsEngine.add(pb);
 
-        physicsEngine.add(new StaticBody(new Vector2(0, -1f), new Vector2(2f, 1f), Color.black));
-        physicsEngine.add(new StaticBody(new Vector2(0, 1f), new Vector2(2f, 1f), Color.black));
-        physicsEngine.add(new StaticBody(new Vector2(-1f, 0f), new Vector2(1f, 2f), Color.black));
-        physicsEngine.add(new StaticBody(new Vector2(1f, 0f), new Vector2(1f, 2f), Color.black));
+        physicsEngine.add(new StaticBody(new Vector2(0, -1f), new Vector2(4f, 1f), Color.black));
+        physicsEngine.add(new StaticBody(new Vector2(0, 1f), new Vector2(4f, 1f), Color.black));
+        physicsEngine.add(new StaticBody(new Vector2(-1.5f, 0f), new Vector2(1f, 2f), Color.black));
+        physicsEngine.add(new StaticBody(new Vector2(1.5f, 0f), new Vector2(1f, 2f), Color.black));
 
         frame.drawPanel.addListeners(physicsEngine.bodies);
 
@@ -76,6 +76,9 @@ public class Main {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyChar() == ' ') {
                     timer.updating = !timer.updating;
+                }
+                if (e.getKeyChar() == '2') {
+                    physicsEngine.simulationRate *= 2;
                 }
             }
 

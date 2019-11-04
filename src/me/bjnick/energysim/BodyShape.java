@@ -12,6 +12,7 @@ public abstract class BodyShape implements Drawable {
     public Rectangle bounds;
     public Color color;
     public float dragC;
+    public Supplier<Float> surfaceArea;
     public Function<Vector2, Float> area = (var dir) -> 0f;
     public Supplier<Float> volume = () -> bounds.height * bounds.width * bounds.width;
 
@@ -21,6 +22,7 @@ public abstract class BodyShape implements Drawable {
             dragC = 0.8f;
             area = (var direction) -> Math.abs(direction.cpy().nor().x) * bounds.height * bounds.width + Math.abs(direction.cpy().nor().y) * bounds.width * bounds.width;
             volume = () -> bounds.height * bounds.width * bounds.width;
+            surfaceArea = () -> bounds.height * bounds.width * 4 + bounds.width * bounds.width * 2;
         }
 
         @Override

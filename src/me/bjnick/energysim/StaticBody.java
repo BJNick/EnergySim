@@ -42,6 +42,11 @@ public class StaticBody extends PhysicalBody {
     }
 
     @Override
+    public double radiateHeat(PhysicsEngine room, float deltaTime) {
+        return 0;
+    }
+
+    @Override
     public Vector2 getDragForce(Vector2 velocity) {
         return Vector2.Zero.cpy();
     }

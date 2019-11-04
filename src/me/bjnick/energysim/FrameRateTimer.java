@@ -2,7 +2,7 @@ package me.bjnick.energysim;
 
 public abstract class FrameRateTimer extends Thread {
 
-    float desiredUPS = 120;
+    float desiredUPS = 90;
     float desiredFPS = 60;
 
     volatile boolean running = true;
